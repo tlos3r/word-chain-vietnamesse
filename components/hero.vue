@@ -10,13 +10,26 @@ const createRoom = async () => {
         loading.value = false;
         return;
     }
-    await $fetch(`/api/${roomId}/create`, {
+    await $fetch(`/api/create`, {
         method: "POST",
         body: {
-            userId: user.value.id,
+            playerId: user.value.id,
             roomId,
+            playerInfo: [
+                {
+                    id: user.value.id,
+                    name: "",
+                },
+            ],
         },
-    });
+    })
+        .catch((error) => {
+            useHandleError(error);
+            throw new Error(error);
+        })
+        .finally(() => {
+            loading.value = false;
+        });
     return navigateTo(`/rooms/${roomId}/waiting`);
 };
 </script>
@@ -30,7 +43,10 @@ const createRoom = async () => {
                     Developed by
                     <a href="https://github.com/tlos3r" target="_blank" rel="noopener noreferrer" class="link">Fu</a>
                 </p>
-                <button class="btn btn-primary" @click="createRoom">Tạo phòng</button>
+                <button class="btn btn-primary" @click="createRoom">
+                    <span v-if="loading" class="loading loading-dots loading-lg"></span>
+                    <span v-else>Tạo phòng</span>
+                </button>
             </div>
         </div>
     </div>

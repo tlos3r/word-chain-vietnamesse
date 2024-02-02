@@ -22,7 +22,7 @@ const login = async () => {
             return;
         }
         toast.success("Đăng nhập thành công");
-        navigateTo("/redirect");
+        navigateTo("/");
         loading.value = false;
     } catch (error) {
         useHandleError(error);
@@ -47,7 +47,7 @@ const login = async () => {
         </label>
         <input type="password" class="w-full max-w-xs input input-bordered" v-model="loginInfo.password" />
         <div class="mt-5">
-            <button class="btn">
+            <button class="btn btn-primary">
                 <span v-if="loading" class="loading loading-dots loading-lg"></span>
                 <span v-else>Xác nhận</span>
             </button>
