@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
                 id: roomId,
                 host: playerId,
                 finished: false,
+                active: false,
                 playerLists: [
                     {
                         id: playerId,
