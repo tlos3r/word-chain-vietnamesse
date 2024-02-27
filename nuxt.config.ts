@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         public: {
-            baseURL: process.env.BASE_URL || "http://localhost:3000",
+            baseURL: process.env.BASE_URL,
         },
     },
     css: ["vue3-toastify/dist/index.css"],
