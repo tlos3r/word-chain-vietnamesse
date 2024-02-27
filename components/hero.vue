@@ -4,6 +4,7 @@ const user = useSupabaseUser();
 const loading = ref(false);
 const show = ref(true);
 const id = ref("");
+
 const createRoom = async () => {
     const roomId = Math.random().toString(36).slice(2, 7);
     loading.value = true;

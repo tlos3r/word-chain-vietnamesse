@@ -11,9 +11,6 @@ const login = async () => {
     loading.value = true;
     const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: {
-            redirectTo: `${useRuntimeConfig().public.baseURL}/redirect`,
-        },
     });
     if (error) {
         toast.error("Có lỗi gì đó xảy ra khi đăng nhập với google");
