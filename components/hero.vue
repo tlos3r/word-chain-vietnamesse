@@ -21,13 +21,13 @@ const createRoom = async () => {
             name: user.value?.user_metadata.name,
             image: user.value?.user_metadata.avatar_url,
         },
-    })
-        .catch((error) => {
-            return useHandleError(error);
-        })
-        .finally(() => {
+        onRequestError({ error }) {
+            useHandleError(error);
+        },
+        onResponse() {
             loading.value = false;
-        });
+        },
+    });
     return navigateTo(`/rooms/${roomId}`);
 };
 const joinRoom = () => {
