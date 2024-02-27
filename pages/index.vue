@@ -1,4 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+useHead({
+    title: "Trang chủ",
+});
+</script>
 
 <template>
     <Hero />

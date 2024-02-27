@@ -1,21 +1,19 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+
 const prisma = new PrismaClient();
-
 export default defineEventHandler(async (event) => {
-    const id = event.context.params?.id;
-    const body = await readBody(event);
-    // return body;
-
+    const totalWords = await prisma.words.count();
+    let randomNumber = Math.floor(Math.random() * totalWords) + 1;
     try {
-        const addPlayer = await prisma.rooms.update({
+        const randomWord = await prisma.words.findFirstOrThrow({
             where: {
-                id,
-            },
-            data: {
-                playerLists: body.player,
+                id: randomNumber,
             },
         });
-        return addPlayer;
+        return {
+            status: "success",
+            word: randomWord,
+        };
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             return { message: `Prisma Error : ${error.message}` };

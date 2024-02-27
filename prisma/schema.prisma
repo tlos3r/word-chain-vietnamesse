@@ -12,16 +12,30 @@ datasource db {
 }
 
 model rooms {
-  id           String   @unique
-  active       Boolean  @default(true)
-  finished     Boolean? @default(false)
+  id           String     @id
+  active       Boolean    @default(false)
+  finished     Boolean?   @default(false)
   timeToAnswer Int?
   host         String?
-  hearts       Int?
-  lastAnswers  String[]
+  lastAnswers  String?    @default("")
   playerLists  Json[]
   startPlayer  Json?
   nextPlayer   Json?
+  answerList   String[]
+  hideAnswer   Boolean?   @default(false)
+  winner       Json?
+  messages     messages[]
+}
+
+model messages {
+  id         Int      @id @default(autoincrement())
+  room       rooms    @relation(fields: [roomId], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  roomId     String
+  userId     String
+  name       String
+  image      String
+  message    String   @db.VarChar(150)
+  created_at DateTime @default(now())
 }
 
 model words {

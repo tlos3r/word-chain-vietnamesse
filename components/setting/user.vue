@@ -20,7 +20,6 @@ const logOut = async () => {
         <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
             <div v-if="!user">
                 <li><NuxtLink to="/login">Đăng nhập</NuxtLink></li>
-                <li><NuxtLink to="/register">Đăng ký</NuxtLink></li>
             </div>
             <div v-else>
                 <li><NuxtLink>Bạn đã đăng nhập rồi !</NuxtLink></li>

@@ -1,15 +1,22 @@
 import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
+
 export default defineEventHandler(async (event) => {
-    const id = event.context.params!.id;
+    const id = event.context.params?.id;
+    const body = await readBody(event);
 
     try {
-        const detailsRoom = await prisma.rooms.findFirst({
+        const addPlayer = await prisma.rooms.update({
             where: {
                 id,
             },
+            data: {
+                playerLists: {
+                    push: body.player,
+                },
+            },
         });
-        return detailsRoom;
+        return addPlayer;
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             return { message: `Prisma Error : ${error.message}` };

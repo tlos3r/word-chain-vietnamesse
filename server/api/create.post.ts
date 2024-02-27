@@ -1,20 +1,26 @@
 import { PrismaClient, Prisma } from "@prisma/client";
-
 const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
-    const { playerId, roomId, finished, timeToAnswers, turn, playerInfo } = body;
-
+    const { playerId, roomId, name, image } = body;
     try {
         const newRoom = await prisma.rooms.create({
             data: {
                 id: roomId,
                 host: playerId,
                 finished: false,
-                playerLists: playerInfo,
+                playerLists: [
+                    {
+                        id: playerId,
+                        name,
+                        image,
+                        host: true,
+                        heart: 1,
+                    },
+                ],
             },
         });
-        return { status: "Thanh cong" };
+        return newRoom;
     } catch (error) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             return { status: "that bai", message: `Prisma Error : ${error.message}` };
