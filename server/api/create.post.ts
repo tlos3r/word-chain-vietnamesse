@@ -1,5 +1,4 @@
-import pkg from "@prisma/client";
-const { Prisma, PrismaClient } = pkg;
+import { Prisma, PrismaClient } from "@prisma/client/edge";
 const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
