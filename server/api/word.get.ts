@@ -1,12 +1,11 @@
-import pkg from "@prisma/client";
-const { Prisma, PrismaClient } = pkg;
+import { Prisma, PrismaClient } from "@prisma/client/edge";
 const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     try {
         const findWords = await prisma.words.findFirstOrThrow({
             where: {
-                name: query.s as string,
+                name: String(query.s),
             },
         });
         return {
