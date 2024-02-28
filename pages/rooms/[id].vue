@@ -16,7 +16,11 @@ const loading2 = ref(false);
 const answer = ref("");
 const errorMessage = ref("");
 const { data: roomInfo, refresh } = await useAsyncData<any>("roomInfo", () =>
-    $fetch(`/api/${route.params.id}/details`)
+    $fetch(`/api/${route.params.id}/details`, {
+        headers: {
+            "Content-type": "application/json",
+        },
+    })
 );
 const { data: randomWord } = await useFetch<any>("/api/random");
 const options = useStorage("options", {
@@ -29,6 +33,9 @@ const gameStart = async () => {
     loading.value = true;
     await $fetch(`/api/${route.params.id}/details`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             timeToAnswer: options.value.timesToAnswer,
             hideAnswer: options.value.hideListAnswer,
@@ -47,6 +54,9 @@ const gameStart = async () => {
 const updateNextPlayer = async (word: string, startPlayer: Object) => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             word,
             startPlayer,
@@ -57,6 +67,9 @@ const updateNextPlayer = async (word: string, startPlayer: Object) => {
 const updateWinnerPlayer = async (winner: Object) => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             winner,
         },
@@ -71,6 +84,9 @@ const removePlayer = async (player: { id: string; name: string; image: string; h
 
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             player,
             startPlayer: getPlayerListLeft[playerIndex - 1],
@@ -148,6 +164,9 @@ const giveUp = async () => {
     }
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             playerId: user.value?.id,
         },
@@ -173,6 +192,9 @@ const giveUp = async () => {
 const playAgain = async () => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             reset: true,
         },
@@ -182,6 +204,9 @@ const playAgain = async () => {
 const goBack = async () => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             clear: true,
         },

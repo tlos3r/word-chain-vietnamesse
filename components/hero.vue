@@ -15,6 +15,9 @@ const createRoom = async () => {
     }
     await $fetch(`/api/create`, {
         method: "POST",
+        headers: {
+            "Content-type": "application/json",
+        },
         body: {
             playerId: user.value.id,
             roomId,
