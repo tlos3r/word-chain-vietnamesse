@@ -15,6 +15,9 @@ const loading = ref(false);
 const loading2 = ref(false);
 const answer = ref("");
 const errorMessage = ref("");
+const source = ref(`${route.params.id}`);
+const { text, copy, copied, isSupported } = useClipboard({ legacy: true, source });
+
 const { data: roomInfo, refresh } = await useAsyncData<any>("roomInfo", () =>
     $fetch(`/api/${route.params.id}/details`, {
         headers: {
@@ -254,6 +257,18 @@ onUnmounted(() => {
         <!-- Waiting Room -->
         <div v-if="roomInfo.active == false" class="grid grid-cols-4 gap-6 md:grid-cols-8 lg:grid-cols-12 bg-base-100">
             <div class="col-span-4 m-5">
+                <div class="flex items-center gap-5 p-3">
+                    <p class="py-5 text-xl font-bold text-center">
+                        Mã phòng :
+                        <code class="p-2 font-mono tracking-widest rounded-xl bg-neutral text-neutral-content">{{
+                            $route.params.id
+                        }}</code>
+                    </p>
+                    <button @click="copy(source)" class="btn btn-neutral text-neutral-content btn-md">
+                        <span v-if="!copied"><Icon name="gravity-ui:copy-xmark" class="text-xl" /></span>
+                        <span v-else><Icon name="gravity-ui:copy-check" class="text-xl" /></span>
+                    </button>
+                </div>
                 <div
                     v-if="roomInfo.playerLists.length >= 1"
                     v-for="player in roomInfo.playerLists"
