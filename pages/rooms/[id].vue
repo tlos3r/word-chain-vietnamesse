@@ -126,6 +126,9 @@ const submitAnswer = async () => {
         params: {
             s: answer.value,
         },
+        headers: {
+            "Content-type": "application/json",
+        },
         onResponse({ response }) {
             if (response._data.status === "success") {
                 if (roomInfo.value.lastAnswers.length === 0) {
