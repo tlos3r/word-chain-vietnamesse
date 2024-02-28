@@ -1,4 +1,6 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import pkg from "@prisma/client";
+const { Prisma, PrismaClient } = pkg;
+
 const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
@@ -15,6 +17,9 @@ export default defineEventHandler(async (event) => {
         });
         return sendMessage;
     } catch (error) {
-        return error;
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            return { message: `Prisma Error : ${error.message}` };
+        }
+        return { error };
     }
 });

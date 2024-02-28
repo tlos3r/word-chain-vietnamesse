@@ -1,4 +1,5 @@
-import { PrismaClient, Prisma } from "@prisma/client";
+import pkg from "@prisma/client";
+const { Prisma, PrismaClient } = pkg;
 const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
     const id = event.context.params!.id;
@@ -10,6 +11,9 @@ export default defineEventHandler(async (event) => {
         });
         return allMessages;
     } catch (error) {
-        return error;
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            return { message: `Prisma Error : ${error.message}` };
+        }
+        return { error };
     }
 });

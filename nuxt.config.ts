@@ -11,6 +11,7 @@ export default defineNuxtConfig({
             baseURL: process.env.BASE_URL,
         },
     },
+
     css: ["vue3-toastify/dist/index.css"],
     devtools: { enabled: true },
     modules: ["@nuxtjs/tailwindcss", "@nuxtjs/supabase", "@vueuse/nuxt", "nuxt-icon", "dayjs-nuxt"],
