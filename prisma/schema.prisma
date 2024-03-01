@@ -39,6 +39,6 @@ model messages {
 }
 
 model words {
-  id   Int    @id
+  id   Int    @id @default(autoincrement())
   name String
 }

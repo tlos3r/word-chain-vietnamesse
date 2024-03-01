@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { useStorage } from "@vueuse/core";
+import { toast } from "vue3-toastify";
+import type { words } from "@prisma/client/wasm";
 const route = useRoute();
 useHead({
     title: `Phòng ${route.params.id}`,
@@ -15,9 +17,15 @@ const loading = ref(false);
 const loading2 = ref(false);
 const answer = ref("");
 const errorMessage = ref("");
+
+// copy code for invite everyone joining room
 const source = ref(`${route.params.id}`);
 const { text, copy, copied, isSupported } = useClipboard({ legacy: true, source });
 
+/**
+ * api call getting room info details
+ * @returns Json
+ */
 const { data: roomInfo, refresh } = await useAsyncData<any>("roomInfo", () =>
     $fetch(`/api/${route.params.id}/details`, {
         headers: {
@@ -25,15 +33,20 @@ const { data: roomInfo, refresh } = await useAsyncData<any>("roomInfo", () =>
         },
     })
 );
-const { data: randomWord } = await useFetch<any>("/api/random");
+
 const options = useStorage("options", {
     hideListAnswer: false,
     timesToAnswer: 0,
     sorted: false,
 });
 
+/**
+ * Function handle starting game
+ * @returns void
+ */
 const gameStart = async () => {
     loading.value = true;
+    // PATCH fetch update infomation about room
     await $fetch(`/api/${route.params.id}/details`, {
         method: "PATCH",
         headers: {
@@ -54,6 +67,10 @@ const gameStart = async () => {
     });
 };
 
+/**
+ * handle change new turn for player
+ * @returns Promise<void>
+ */
 const updateNextPlayer = async (word: string, startPlayer: Object) => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
@@ -67,6 +84,11 @@ const updateNextPlayer = async (word: string, startPlayer: Object) => {
     });
 };
 
+/**
+ * update winner player
+ * @param winner
+ * @returns Promise
+ */
 const updateWinnerPlayer = async (winner: Object) => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
@@ -79,6 +101,11 @@ const updateWinnerPlayer = async (winner: Object) => {
     });
 };
 
+/**
+ * Handle remove player when they inactive
+ * @param player
+ * @returns Promise
+ */
 const removePlayer = async (player: { id: string; name: string; image: string; heart: number }) => {
     let getPlayerListLeft = roomInfo.value.playerLists.filter((player: any) => player.heart === 1);
     let playerIndex = roomInfo.value.playerLists
@@ -100,8 +127,13 @@ const removePlayer = async (player: { id: string; name: string; image: string; h
     }
 };
 
+/**
+ * Validation input answer about word
+ * @returns Promise
+ */
 const submitAnswer = async () => {
     loading.value = true;
+    // get first letter
     const getFirstWord = answer.value.split(" ").shift();
     let getPlayerListLeft = roomInfo.value.playerLists.filter((player: any) => player.heart === 1);
     let nextPlayerIndex =
@@ -111,7 +143,7 @@ const submitAnswer = async () => {
         loading.value = false;
         return;
     }
-    if (nextPlayerIndex >= roomInfo.value.playerLists.length) {
+    if (nextPlayerIndex === getPlayerListLeft.length) {
         nextPlayerIndex = 0;
     }
 
@@ -121,11 +153,7 @@ const submitAnswer = async () => {
         return;
     }
 
-    if (roomInfo.value.playerLists[nextPlayerIndex].heart === 0) {
-        nextPlayerIndex++;
-    }
-
-    const { data } = await useFetch("/api/word", {
+    const { data } = await useFetch<words>("/api/word", {
         params: {
             s: answer.value,
         },
@@ -135,8 +163,9 @@ const submitAnswer = async () => {
         onResponse({ response }) {
             if (response._data.status === "success") {
                 if (roomInfo.value.lastAnswers.length === 0) {
-                    updateNextPlayer(response._data.word.name, roomInfo.value.playerLists[nextPlayerIndex]);
+                    updateNextPlayer(response._data.word.name, getPlayerListLeft[nextPlayerIndex]);
                     answer.value = "";
+                    errorMessage.value = "";
                     loading.value = false;
                     return;
                 }
@@ -145,7 +174,7 @@ const submitAnswer = async () => {
                     roomInfo.value.lastAnswers.length > 0 &&
                     roomInfo.value.lastAnswers.split(" ").pop() === getFirstWord
                 ) {
-                    updateNextPlayer(response._data.word.name, roomInfo.value.playerLists[nextPlayerIndex]);
+                    updateNextPlayer(response._data.word.name, getPlayerListLeft[nextPlayerIndex]);
                     errorMessage.value = "";
                     answer.value = "";
                 } else if (roomInfo.value.lastAnswers.split(" ").pop() !== getFirstWord) {
@@ -157,17 +186,20 @@ const submitAnswer = async () => {
                 errorMessage.value = `Từ ${answer.value} không tồn tại.`;
             }
         },
+        onResponseError({ error }) {
+            useHandleError(error);
+        },
     });
     loading.value = false;
 };
-
+/**
+ * Handle event when player want to give up
+ * @returns Promise
+ */
 const giveUp = async () => {
-    let playerIndex = roomInfo.value.playerLists
-        .map((player: { name: any }) => player.name)
-        .indexOf(roomInfo.value.startPlayer.name);
-    if (playerIndex === 0) {
-        playerIndex = 1;
-    }
+    // get ramdom word
+    const { data: randomWord } = await useFetch<any>("/api/random");
+
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
         headers: {
@@ -178,23 +210,38 @@ const giveUp = async () => {
         },
         onResponse({ response }) {
             if (response._data.status === "success") {
+                // check player have heart = 1
                 let totalPlayerLeft = response._data.updateRooms.playerLists.filter(
                     (player: any) => player.heart === 1
                 );
-
                 if (totalPlayerLeft.length === 1) {
                     updateWinnerPlayer(totalPlayerLeft[0]);
                 } else {
-                    updateNextPlayer(
-                        randomWord.value.word.name,
-                        response._data.updateRooms.playerLists[playerIndex - 1]
-                    );
+                    // random next turn player
+                    let playerIndex = totalPlayerLeft
+                        .map((player: { name: any }) => player.name)
+                        .indexOf(roomInfo.value.startPlayer.name);
+                    let randomPlayerIndex = Math.floor(Math.random() * totalPlayerLeft.length) + 1;
+                    while (randomPlayerIndex === playerIndex) {
+                        randomPlayerIndex = Math.floor(Math.random() * totalPlayerLeft.length) + 1;
+                    }
+                    updateNextPlayer(randomWord.value.word.name, totalPlayerLeft[randomPlayerIndex]);
                 }
+            } else {
+                toast.error(`${response._data.error}`);
             }
         },
+        onResponseError({ error }) {
+            useHandleError(error);
+        },
     });
+    answer.value = "";
+    errorMessage.value = "";
 };
-
+/**
+ * handle start a new exists game
+ * @returns Promise<void>
+ */
 const playAgain = async () => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
@@ -206,7 +253,10 @@ const playAgain = async () => {
         },
     });
 };
-
+/**
+ * handle go back to waiting room
+ * @returns Promise<void>
+ */
 const goBack = async () => {
     await $fetch(`/api/${route.params.id}/gameplay`, {
         method: "PATCH",
