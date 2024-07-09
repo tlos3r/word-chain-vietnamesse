@@ -10,7 +10,7 @@
         "postinstall": "prisma generate"
     },
     "devDependencies": {
-        "@nuxtjs/supabase": "^1.1.5",
+        "@nuxtjs/supabase": "^1.2.2",
         "@nuxtjs/tailwindcss": "^6.11.0",
         "daisyui": "^4.6.0",
         "dayjs-nuxt": "^2.1.9",

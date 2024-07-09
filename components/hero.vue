@@ -1,37 +1,40 @@
 <script lang="ts" setup>
 import { toast } from "vue3-toastify";
 const user = useSupabaseUser();
+const supabase = useSupabaseClient();
 const loading = ref(false);
 const show = ref(true);
 const id = ref("");
 
 const createRoom = async () => {
-    const roomId = Math.random().toString(36).slice(2, 7);
-    loading.value = true;
-    if (!user.value) {
-        toast.error("Bạn chưa đăng nhập nên chưa tạo phòng được");
-        loading.value = false;
-        return;
-    }
-    await $fetch(`/api/create`, {
-        method: "POST",
-        headers: {
-            "Content-type": "application/json",
-        },
-        body: {
-            playerId: user.value.id,
-            roomId,
-            name: user.value?.user_metadata.name,
-            image: user.value?.user_metadata.avatar_url,
-        },
-        onRequestError({ error }) {
-            useHandleError(error);
-        },
-        onResponse() {
-            loading.value = false;
-        },
-    });
-    return navigateTo(`/rooms/${roomId}`);
+    const { data, error } = await supabase.auth.signInAnonymously();
+    console.log(data);
+    // const roomId = Math.random().toString(36).slice(2, 7);
+    // loading.value = true;
+    // if (!user.value) {
+    //     toast.error("Bạn chưa đăng nhập nên chưa tạo phòng được");
+    //     loading.value = false;
+    //     return;
+    // }
+    // await $fetch(`/api/create`, {
+    //     method: "POST",
+    //     headers: {
+    //         "Content-type": "application/json",
+    //     },
+    //     body: {
+    //         playerId: user.value.id,
+    //         roomId,
+    //         name: user.value?.user_metadata.name,
+    //         image: user.value?.user_metadata.avatar_url,
+    //     },
+    //     onRequestError({ error }) {
+    //         useHandleError(error);
+    //     },
+    //     onResponse() {
+    //         loading.value = false;
+    //     },
+    // });
+    // return navigateTo(`/rooms/${roomId}`);
 };
 const joinRoom = () => {
     if (id.value.length === 0) {
