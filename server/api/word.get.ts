@@ -1,5 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client/edge";
-const prisma = new PrismaClient();
+import { Prisma, prisma } from "../utils/prisma";
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     try {

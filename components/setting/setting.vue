@@ -2,8 +2,7 @@
 
 <template>
     <div class="absolute flex items-center gap-5 top-5 right-5">
-        <SettingToggle />
-        <SettingUser />
+        <SettingConfig />
     </div>
 </template>
 

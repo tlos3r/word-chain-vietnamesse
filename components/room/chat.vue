@@ -1,25 +1,41 @@
 <script lang="ts" setup>
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import type { messages } from "@prisma/client";
+import type { messages } from "~/generated/prisma/browser";
 const message: Ref<string> = ref("");
 let realtimeChannel: RealtimeChannel;
 const user = useSupabaseUser();
+const anonymousPlayer = useAnonymousPlayer();
 const route = useRoute();
 const client = useSupabaseClient();
 const loading = ref(false);
 const { data: messages, refresh } = await useAsyncData<any>("messagesChat", () =>
-    $fetch(`/api/${route.params.id}/message`)
+    $fetch(`/api/${route.params.id}/message`),
 );
 
 const sendMessages = async () => {
+    const profile = user.value ? usePlayerProfile(user.value) : anonymousPlayer.value;
+
+    if (!profile?.id) {
+        return;
+    }
+
+    if (user.value) {
+        anonymousPlayer.value = {
+            id: profile.id,
+            name: profile.name,
+            image: profile.image,
+        };
+    }
+
     loading.value = true;
+
     try {
         await $fetch(`/api/${String(route.params.id)}/message`, {
             method: "PATCH",
             body: {
-                userId: user.value?.id,
-                name: user.value?.user_metadata.name,
-                image: user.value?.user_metadata.avatar_url,
+                userId: profile.id,
+                name: profile.name,
+                image: profile.image,
                 roomId: route.params.id,
                 message: message.value,
             },
@@ -66,14 +82,14 @@ onUnmounted(() => {
             </div>
             <div class="chat-bubble">{{ message.message }}</div>
         </div>
-        <form @submit.prevent="sendMessages" class="flex justify-center gap-5 mt-5">
-            <input type="text" placeholder="Nhắn ở đây nè !" class="w-full input input-bordered" v-model="message" />
-            <button class="btn">
-                <span v-if="loading" class="loading loading-dots loading-lg"></span>
-                <span v-else>Gửi</span>
-            </button>
-        </form>
     </div>
+    <form @submit.prevent="sendMessages" class="flex justify-center gap-5 mt-5">
+        <input type="text" placeholder="Nhắn ở đây nè !" class="w-full input input-bordered" v-model="message" />
+        <button class="btn">
+            <span v-if="loading" class="loading loading-dots loading-lg"></span>
+            <span v-else>Gửi</span>
+        </button>
+    </form>
 </template>
 
 <style scoped></style>

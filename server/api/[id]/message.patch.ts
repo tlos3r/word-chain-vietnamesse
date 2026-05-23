@@ -1,6 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client/edge";
-
-const prisma = new PrismaClient();
+import { Prisma, prisma } from "../../utils/prisma";
 export default defineEventHandler(async (event) => {
     const body = await readBody(event);
     const { userId, name, image, roomId, message } = body;

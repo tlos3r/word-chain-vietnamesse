@@ -2,27 +2,32 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
+  provider              = "prisma-client"
+  output                = "../generated/prisma"
+  importFileExtension   = "ts"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 model rooms {
   id           String     @id
+  startDate    DateTime   @default(now())
   active       Boolean    @default(false)
   finished     Boolean?   @default(false)
   timeToAnswer Int?
+  maxHearts    Int        @default(1)
   host         String?
   lastAnswers  String?    @default("")
   playerLists  Json[]
+  kickedPlayers String[]   @default([])
   startPlayer  Json?
   nextPlayer   Json?
   answerList   String[]
   hideAnswer   Boolean?   @default(false)
+  hideHeart     Boolean?   @default(false)
+  giveUpMode   String?    @default("random")
   winner       Json?
   messages     messages[]
 }

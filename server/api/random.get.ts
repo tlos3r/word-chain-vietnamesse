@@ -1,6 +1,4 @@
-import { Prisma, PrismaClient } from "@prisma/client/edge";
-
-const prisma = new PrismaClient();
+import { Prisma, prisma } from "../utils/prisma";
 export default defineEventHandler(async (event) => {
     const totalWords = await prisma.words.count();
     let randomNumber = Math.floor(Math.random() * totalWords) + 1;
