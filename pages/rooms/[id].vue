@@ -971,7 +971,7 @@ onUnmounted(() => {
                     <p class="text-lg font-bold sm:text-xl">
                         Mã phòng :
                         <code class="p-2 font-mono tracking-widest rounded-xl bg-neutral text-neutral-content">{{
-                            $route.params.id
+                            route.params.id
                         }}</code>
                     </p>
                     <button @click="copy(source)" class="btn btn-neutral text-neutral-content btn-md sm:btn-square">
@@ -1038,7 +1038,7 @@ onUnmounted(() => {
 
                     <div class="form-control">
                         <label class="cursor-pointer label">
-                            <span class="text-base font-medium sm:text-xl">An so mang trong phong choi</span>
+                            <span class="text-base font-medium sm:text-xl">Ẩn số mạng trong phòng chơi</span>
                             <input v-model="options.hideHeart" type="checkbox" class="toggle toggle-primary" />
                         </label>
                     </div>
@@ -1061,7 +1061,7 @@ onUnmounted(() => {
 
                     <div class="mt-4 form-control">
                         <div class="label">
-                            <span class="text-base font-medium sm:text-xl">So mang moi nguoi</span>
+                            <span class="text-base font-medium sm:text-xl">Số mạng mỗi người</span>
                         </div>
                         <div class="join">
                             <input
